@@ -1,1 +1,1 @@
-# dlsys_assignment
+# An assignment for the DLSys course
