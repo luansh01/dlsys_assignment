@@ -221,11 +221,16 @@ class BroadcastTo(TensorOp):
         ma, = node.inputs
         shape_ma = ma.shape
         shape_out_grad = out_grad.shape
+        delt_len = len(shape_out_grad) - len(shape_ma)
         axes = list(range(len(shape_out_grad)))
-        axes = axes[len(shape_ma):]
+        axes = axes[0:delt_len]
         for i  in range(len(shape_ma)):
-            if shape_ma[i] == 1 and shape_out_grad[i] > 1:
-                axes.append(i)
+            if shape_ma[i] == 1 and shape_out_grad[i+delt_len] > 1:
+                axes.append(i + delt_len)
+        print(shape_ma)
+        print(shape_out_grad)
+        print(self.shape)
+        print(axes)
         sum_grad = summation(out_grad, tuple(axes))
         return reshape(sum_grad, shape_ma)
         
@@ -316,7 +321,7 @@ def negate(a):
 class Log(TensorOp):
     def compute(self, a: NDArray):
         ### BEGIN YOUR SOLUTION
-        return array_api.log(a,dtype=array_api.float64)
+        return array_api.log(a)
         raise NotImplementedError()
         ### END YOUR SOLUTION
 
@@ -335,7 +340,7 @@ def log(a):
 class Exp(TensorOp):
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        return array_api.exp(a, dtype=array_api.float64)
+        return array_api.exp(a)
         raise NotImplementedError()
         ### END YOUR SOLUTION
 

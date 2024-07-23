@@ -1,6 +1,6 @@
-# The assignment for the DLSys course
-This is  my codes for  DLSys course assignment. All homework codes have passed the unit tests, butw not yet submit to the remote grading system for evalution.
+# The implementation of the CMU 10-414/714: Deep Learning Systems course assignment
+This is  my implementation of the DLsys course assignment. All code has passed the unit tests but has not yet been submitted to the remote grading system for evaluation.
 
-The course is taught by Prof. Chen  and Prof. Kolter and designed to delve deep into the foundational aspects of deep learning systems, offering students a comprehensive understanding from top-level modeling concepts to low-level implementation details 
+The course, taught by Prof. Chen and Prof. Kolter, is designed to explore the foundational aspects of deep learning systems in depth. It provides students with a comprehensive understanding, covering everything from high-level modeling concepts to low-level implementation details.
 
- The Course Page: [Deep Learning Systems:Algorithms and Implementation](https://dlsyscourse.org/)
+Course Page: [Deep Learning Systems:Algorithms and Implementation](https://dlsyscourse.org/)
