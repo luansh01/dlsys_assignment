@@ -13,10 +13,11 @@ TENSOR_COUNTER = 0
 
 # NOTE: we will import numpy as the array_api
 # as the backend for our computations, this line will change in later homeworks
-import numpy as array_api
 
+import numpy as array_api
 NDArray = numpy.ndarray
 
+from .backend_selection import array_api, NDArray, default_device
 
 class Op:
     """Operator definition."""
@@ -149,7 +150,6 @@ class Value:
     def make_from_op(cls, op: Op, inputs: List["Value"]):
         value = cls.__new__(cls)
         value._init(op, inputs)
-
         if not LAZY_MODE:
             if not value.requires_grad:
                 return value.detach()
@@ -187,7 +187,7 @@ class TensorTuple(Value):
 
     def detach(self):
         """Create a new tensor that shares the data but detaches from the graph."""
-        return Tuple.make_const(self.realize_cached_data())
+        return TensorTuple.make_const(self.realize_cached_data())
 
 
 class Tensor(Value):
@@ -215,7 +215,7 @@ class Tensor(Value):
                     array.numpy(), device=device, dtype=dtype
                 )
         else:
-            device = device if device else cpu()
+            device = device if device else default_device()
             cached_data = Tensor._array_from_numpy(array, device=device, dtype=dtype)
 
         self._init(
@@ -330,6 +330,11 @@ class Tensor(Value):
             return needle.ops.EWiseAdd()(self, needle.ops.Negate()(other))
         else:
             return needle.ops.AddScalar(-other)(self)
+    def __rsub__(self, other):
+        if isinstance(other, Tensor):
+            return needle.ops.EWiseAdd()(needle.ops.Negate()(self), other)
+        else:
+            return needle.ops.AddScalar(other)(-self)
 
     def __truediv__(self, other):
         if isinstance(other, Tensor):
@@ -360,7 +365,7 @@ class Tensor(Value):
 
     __radd__ = __add__
     __rmul__ = __mul__
-    __rsub__ = __sub__
+    #__rsub__ = __sub__
     __rmatmul__ = __matmul__
 
 
@@ -381,7 +386,11 @@ def compute_gradient_of_variables(output_tensor, out_grad):
 
     ### BEGIN YOUR SOLUTION
     for node in reverse_topo_order:
-        node.grad = sum(node_to_output_grads_list[node])
+        if isinstance(node, TensorTuple):
+            node.grad = node_to_output_grads_list[node][0]
+        else:
+            node.grad = sum(node_to_output_grads_list[node])
+
         if not node.is_leaf():
             input_grads = node.op.gradient_as_tuple(node.grad, node)
             for input, input_grad in zip(node.inputs, input_grads):
